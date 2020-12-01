@@ -4,7 +4,11 @@ const morgan = require('morgan');
 
 app.use(express.json());
 
-app.use(morgan('tiny'));
+morgan.token('data', (req, res) => {
+  return JSON.stringify(req.body);
+});
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time :data'))
 
 let persons = [
   {
@@ -72,14 +76,15 @@ app.post('/api/persons', (request, response) => {
   const body = request.body;
   const name = persons.find(person => person.name === body.name);
   const number = persons.find(person => person.number === body.number);
+  const id = persons.find(person => person.id === body.id);
 
   if (!body.name || !body.number) {
     return response.status(404).json({
       error: 'Name or number is missing'
     })
-  } else if (name || number) {
+  } else if (name || number || id) {
     return response.status(404).json({
-      error: 'Name or Number already exists in the phonebook'
+      error: 'Name or Number or ID already exists in the phonebook'
     })
   }
   
